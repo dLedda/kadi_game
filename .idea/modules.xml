@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/kadi_board.iml" filepath="$PROJECT_DIR$/.idea/kadi_board.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../kadi_frontend/.idea/kniffel.iml" filepath="$PROJECT_DIR$/../kadi_frontend/.idea/kniffel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../expressjs/kniffel_backend/.idea/kniffel_backend.iml" filepath="$PROJECT_DIR$/../../expressjs/kniffel_backend/.idea/kniffel_backend.iml" />
+    </modules>
+  </component>
+</project>

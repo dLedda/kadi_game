@@ -1,0 +1,418 @@
+:root {
+    --bg-border: #333;
+    --bg-cells: #fff;
+    --bg-cell-hover: #f3f3f3;
+    --text-color-input: #000;
+    --default-field-height: 30px;
+    --default-field-width: 60px;
+    --thick-border: 3px solid var(--bg-border);
+    --thicker-border: 10px solid var(--bg-border);
+    --outer-radius: 10px;
+    --default-font-family: Arial;
+}
+
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: absolute;
+    background-color: #e0e0e0 !important;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+input[type="text"],
+input[type="number"] {
+    border: none;
+}
+
+@font-face {
+    font-family: "Athiti";
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url("../fonts/Athiti-ExtraLight.ttf") format("truetype");
+}
+
+.brandname {
+    font-family: "Athiti", monospace;
+}
+
+/****************************************\
+|*                 Game                 *|
+\****************************************/
+
+.game {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 100%;
+}
+
+.game > table * {
+    line-height: normal;
+    user-select: none;
+}
+
+.playerNameCell,
+.topLeftBlankCell {
+    font-size: large;
+    text-align: center;
+    padding: 8px;
+}
+.rowLabelCell {
+    font-size: large;
+    padding: 8px;
+}
+
+
+.kniffelTable {
+    margin-left: auto;
+    margin-right: auto;
+    border: var(--thick-border);
+    background-color: var(--bg-border);
+    border-radius: var(--outer-radius);
+}
+
+.kniffelCell,
+.rowLabelCell,
+.playerNameCell,
+.topLeftBlankCell {
+    background-color: var(--bg-cells);
+}
+
+.kniffelCell.editable {
+    background-color: var(--bg-cells);
+    transition: background-color 100ms;
+}
+
+.kniffelCell.editable:hover {
+    background-color: var(--bg-cell-hover);
+}
+
+tr.subtotalField > .kniffelCell {
+    border-top: var(--thick-border);
+}
+
+tr.totalField > .kniffelCell,
+.playerNameCell,
+.topLeftBlankCell {
+    border-top: var(--thick-border);
+    border-bottom: var(--thick-border);
+}
+
+.topLeftBlankCell,
+.rowLabelCell {
+    border-right: var(--thick-border);
+}
+
+.kniffelTable > thead {
+    font-size: xx-large;
+    text-align: center;
+    background-color: var(--bg-border);
+    color: var(--bg-cells);
+}
+
+div.subtotalField,
+div.totalField,
+div.bonusField,
+div.globalTotalField,
+div.yahtzeeField,
+div.multipleField,
+div.numberField {
+    width: var(--default-field-width);
+    height: var(--default-field-height);
+    margin: auto;
+    font-size: 30px;
+    line-height: 100%;
+    text-align: center;
+    color: var(--text-color-input);
+    font-family: var(--default-font-family);
+}
+
+input.numberField {
+    background: none;
+    padding: 0;
+    width: var(--default-field-width);
+    height: var(--default-field-height);
+    margin: auto;
+    font-size: 30px;
+    line-height: 100%;
+    text-align: center;
+    color: var(--text-color-input);
+    font-family: var(--default-font-family);
+    -moz-appearance: textfield;
+}
+
+input.numberField::-webkit-outer-spin-button,
+input.numberField::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* bottom curves inside */
+.game tr:last-child > td:last-child {
+    border-bottom-right-radius: var(--outer-radius);
+}
+.game tr:last-child > td:first-child {
+    border-bottom-left-radius: var(--outer-radius);
+}
+/**/
+
+
+.boolField {
+    background-color: white;
+    position: relative;
+}
+
+.boolField.checked {
+    background-color: palegreen;
+    color: forestgreen;
+    transition: background-color 100ms, color 100ms;
+}
+
+.boolField.checked:hover {
+    background-color: #bfb;
+    color: #3a3;
+}
+
+.boolField .clickableArea {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.boolField.unchecked::after {
+    content: "";
+    box-sizing: border-box;
+}
+
+.boolField.checked::after {
+    content: "✔";
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 35px;
+}
+
+.strikeCell {
+    background-color: #eebbbb;
+    text-align: center;
+    font-size: 30px;
+    color: darkred;
+    transition: background-color 100ms, color 100ms;
+    position: relative;
+}
+
+.strikeCell::after {
+    content: "✘";
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.strikeCell:hover {
+    color: #a11;
+    background-color: #fcc;
+}
+
+.game .buttonContainer {
+    margin: 10px;
+    text-align: center;
+}
+
+div.totalField,
+div.bonusField,
+div.subtotalField,
+div.globalTotalField {
+    transition: filter 200ms;
+}
+
+.hideResults > td > div {
+    filter: blur(6px);
+}
+
+.showResultsIcon {
+    float: right;
+}
+
+.globalTotalField > .rowLabelCell {
+    cursor: pointer;
+}
+
+/****************************************\
+|*             Setup Screen             *|
+\****************************************/
+.gameSetup {
+}
+
+.setupFormContainer {
+    padding-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 360px;
+}
+
+.setupForm {
+    height: 100%;
+    padding: 30px;
+    background-color: var(--bg-border);
+    border-radius: var(--outer-radius);
+    display: grid;
+    align-content: space-between;
+    box-shadow: 2px 2px 7px 0 rgba(0,0,0,0.3);
+}
+
+.setupForm > * {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.setupForm > *:first-child {
+    margin-top: 0;
+}
+
+.setupForm > *:last-child {
+    margin-bottom: 0;
+}
+
+.optionGroupTitleContainer {
+    padding: 0 0 10px 0;
+}
+
+.optionGroupTitle {
+    font-weight: bold;
+    font-size: large;
+    color: white;
+}
+
+.optionList {
+    box-shadow: inset 1px 1px 5px 0 rgba(0,0,0,0.4);
+    background-color: white;
+    color: var(--bg-border);
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    display: grid;
+    align-content: space-evenly;
+}
+
+
+.option {
+    cursor: pointer;
+    z-index: 0;
+    padding: 10px;
+    height: 40px;
+    font-weight: normal;
+    font-size: medium;
+    background: transparent;
+    position: relative;
+    transition: background 200ms;
+}
+.option:first-child,
+.option.selected:first-child > .selectorBox {
+    border-radius: 5px 5px 0 0;
+}
+
+.option:last-child,
+.option.selected:last-child > .selectorBox {
+    border-radius: 0 0 5px 5px;
+}
+
+.option:only-child,
+.option.selected:only-child > .selectorBox {
+    border-radius: 5px;
+}
+
+.option:hover {
+    background: #eee;
+}
+
+.option.selected:hover {
+    background: none;
+}
+
+@keyframes growFromMiddle {
+    from {height: 0; top: 20px;}
+    to {height: 40px; top: 0;}
+}
+
+.option.selected > .selectorBox {
+    z-index: -1;
+    height: 40px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: lightblue;
+    animation-name: growFromMiddle;
+    animation-duration: 100ms;
+    animation-timing-function: linear;
+    transition: background-color 200ms;
+}
+
+.option.selected:hover > .selectorBox {
+    background-color: #b7e4f5;
+}
+
+.playerOption {
+    cursor: default;
+    text-align: left;
+}
+
+.playerOption .trashButton {
+    cursor: pointer;
+    height: 20px;
+    width: 20px;
+    right: 10px;
+    top: 10px;
+    position: absolute;
+    background-size: contain;
+    background-image: url(../images/trash.png);
+    background-repeat: no-repeat;
+}
+
+.playButtonContainer {
+    text-align: center;
+}
+
+.playButton {
+    width: 200px;
+    height: 50px;
+    font-size: 20px;
+}
+
+.option.inputPlayerField {
+    padding: 0;
+}
+
+.option.faded input {
+    color: #999;
+}
+
+.option input {
+    width: 100%;
+    height: 100%;
+    font-size: medium;
+    background: transparent;
+    padding-left: 10px;
+}
