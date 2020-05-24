@@ -6,8 +6,9 @@
   "license": "ISC",
   "author": "Daniel Ledda",
   "scripts": {
-    "build": "webpack --mode development",
-    "postbuild": "rsync -avu --delete dist/ ../kadi_backend/dist/game/static",
+    "build-dev": "webpack --mode development && postbuild",
+    "build": "webpack --mode production",
+    "postbuild": "rsync -avu --delete dist/ ../kadi_backend/static/game",
     "start": "webpack-dev-server --mode development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

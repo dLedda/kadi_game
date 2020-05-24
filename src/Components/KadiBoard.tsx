@@ -1,7 +1,8 @@
 import React, {ReactElement, ReactNode, useContext} from "react";
 import PlayerScoreCard, {CellLocation, PlayerScoreCardJSONRepresentation} from "../Classes/PlayerScoreCard";
 import {BlockDef, GameSchema, getGameSchemaById} from "../static/rulesets";
-import {formatUnicorn, LocaleContext} from "../static/strings";
+import {formatUnicorn} from "../static/strings";
+import LocaleContext from "../LocaleContext";
 import {CellFlag} from "../static/enums";
 import {ScoreCellValue} from "../Classes/ScoreCell";
 import {CaretakerSet} from "../Classes/Caretaker";
@@ -131,11 +132,14 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
     }
 
     private getJSONRepresentationForBoard(): string {
-        const JSONRepresentation: PlayerScoreCardJSONRepresentation[] = [];
+        const JSONScoreCards: PlayerScoreCardJSONRepresentation[] = [];
         for (const playerId in this.state.scoreSheet) {
-            JSONRepresentation.push(this.state.scoreSheet[playerId].getJSONRepresentation());
+            JSONScoreCards.push(this.state.scoreSheet[playerId].getJSONRepresentation());
         }
-        return JSON.stringify(JSONRepresentation);
+        return JSON.stringify({
+            gameType: this.gameSchema.id,
+            results: JSONScoreCards
+        });
     }
 
     private canSave(): boolean {

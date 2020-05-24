@@ -1,7 +1,7 @@
 import {BlockDef} from "../static/rulesets";
 import {CellLocation} from "../Classes/PlayerScoreCard";
 import React, {ReactElement} from "react";
-import {formatUnicorn, LocaleContext} from "../static/strings";
+import {formatUnicorn} from "../static/strings";
 import {FieldType} from "../static/enums";
 import {BlockScores, CellEventResponse} from "./KadiBoard";
 import GenericKadiRowContainer from "./GenericKadiRowContainer";
@@ -9,6 +9,7 @@ import KadiEditableRowCells from "./KadiEditableRowCells";
 import KadiBlockTotalRow from "./KadiBlockTotalRow";
 import KadiBlockSubtotalRow from "./KadiBlockSubtotalRow";
 import KadiBlockBonusRow from "./KadiBlockBonusRow";
+import LocaleContext from "../LocaleContext";
 
 interface BlockRendererProps {
     blockSchema: BlockDef;

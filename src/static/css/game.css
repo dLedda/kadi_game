@@ -74,7 +74,7 @@ input[type="number"] {
 }
 
 
-.kniffelTable {
+.kadiTable {
     margin-left: auto;
     margin-right: auto;
     border: var(--thick-border);
@@ -82,27 +82,27 @@ input[type="number"] {
     border-radius: var(--outer-radius);
 }
 
-.kniffelCell,
+.kadiCell,
 .rowLabelCell,
 .playerNameCell,
 .topLeftBlankCell {
     background-color: var(--bg-cells);
 }
 
-.kniffelCell.editable {
+.kadiCell.editable {
     background-color: var(--bg-cells);
     transition: background-color 100ms;
 }
 
-.kniffelCell.editable:hover {
+.kadiCell.editable:hover {
     background-color: var(--bg-cell-hover);
 }
 
-tr.subtotalField > .kniffelCell {
+tr.subtotalField > .kadiCell {
     border-top: var(--thick-border);
 }
 
-tr.totalField > .kniffelCell,
+tr.totalField > .kadiCell,
 .playerNameCell,
 .topLeftBlankCell {
     border-top: var(--thick-border);
@@ -114,7 +114,7 @@ tr.totalField > .kniffelCell,
     border-right: var(--thick-border);
 }
 
-.kniffelTable > thead {
+.kadiTable > thead {
     font-size: xx-large;
     text-align: center;
     background-color: var(--bg-border);

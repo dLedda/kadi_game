@@ -4,6 +4,8 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import "./filetypes.d";
 
+export const SERVER_BASE_NAME = "/kadi";
+
 ReactDOM.render((
     <React.StrictMode>
         <App />

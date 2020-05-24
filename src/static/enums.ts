@@ -15,7 +15,7 @@ export enum CellFlag {
 }
 
 export enum SupportedLang {
-    en = "en",
+    gb = "gb",
     de = "de",
     it = "it",
 }

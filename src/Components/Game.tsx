@@ -21,7 +21,6 @@ class Game extends React.Component<GameProps, GameState> {
         const startupSettings: GameSettings = {
             playerIds: Settings.players,
             ruleset: Settings.ruleset,
-            lang: Settings.lang as SupportedLang
         };
 
         this.state = {

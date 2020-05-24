@@ -22,13 +22,13 @@ export function formatUnicorn(fmt: string, ...args: string[]): string {
 }
 
 export const LanguageNames: Record<SupportedLang, string> = {
-    en: "English",
+    gb: "English",
     de: "Deutsch",
     it: "Italiano",
 };
 
-const IntlStrings = {
-    en: {
+export const IntlStrings = {
+    gb: {
         rowLabels: {
             subtotal: "Subtotal",
             bonus: "Bonus",
@@ -124,14 +124,3 @@ const IntlStrings = {
         },
     },
 } as const;
-
-export const localeDefaultVal = {
-    strings: IntlStrings[Settings.lang as SupportedLang],
-    changeLang: changeLang,
-};
-
-export const LocaleContext = React.createContext(localeDefaultVal);
-
-export function changeLang(newLang: SupportedLang): void {
-    localeDefaultVal.strings = IntlStrings[newLang];
-}

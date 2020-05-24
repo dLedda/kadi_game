@@ -1,7 +1,25 @@
 import React, {ChangeEvent, FocusEvent, KeyboardEvent, ReactNode} from "react";
 import {getSchemaListings, SchemaListing} from "../static/rulesets";
-import {LocaleContext, LanguageNames} from "../static/strings";
+import {LanguageNames} from "../static/strings";
+import LocaleContext from "../LocaleContext";
 import {SupportedLang} from "../static/enums";
+import {Button} from "semantic-ui-react";
+
+interface GameSetupProps {
+    onSetupComplete: (settings: GameSettings) => void;
+    settings: GameSettings;
+}
+
+interface GameSetupState {
+    selectedRuleset: string;
+    enteredPlayerIds: string[];
+    editingPlayerName: boolean;
+}
+
+export interface GameSettings {
+    ruleset: string;
+    playerIds: string[];
+}
 
 class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
     private readonly availableRulesets: SchemaListing[];
@@ -14,21 +32,11 @@ class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
         this.availableRulesets = getSchemaListings();
         this.changeLang = () => {};
         this.state = {
-            selectedLang: this.props.settings.lang,
             selectedRuleset: this.props.settings.ruleset,
             enteredPlayerIds: this.props.settings.playerIds,
             editingPlayerName: false,
         };
     }
-
-    componentDidMount(): void {
-        this.changeLang = this.context.changeLang;
-    }
-
-    onLanguageChange: (lang: SupportedLang) => void = (lang) => {
-        this.setState({ selectedLang: lang });
-        this.changeLang(lang);
-    };
 
     onRulesetChange: (ruleset: string) => void = (ruleset) => {
         this.setState({ selectedRuleset: ruleset });
@@ -52,30 +60,11 @@ class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
         this.props.onSetupComplete({
             ruleset: this.state.selectedRuleset,
             playerIds: this.state.enteredPlayerIds,
-            lang: this.state.selectedLang,
         });
     };
 
     render(): ReactNode {
         const Locale = this.context.strings;
-
-        const langOptions: ReactNode[] = [];
-        for (const lang in SupportedLang) {
-            let className = "option";
-            if (this.state.selectedLang === lang) {
-                className += " selected";
-            }
-            langOptions.push((
-                <div
-                    key={lang + "lang_option"}
-                    className={className}
-                    onClick={() => this.onLanguageChange(lang as SupportedLang)}
-                >
-                    {LanguageNames[lang as SupportedLang]}
-                    <span className={"selectorBox"}/>
-                </div>
-            ));
-        }
 
         const rulesetOptions: ReactNode[] = [];
         for (const rulesetListing of this.availableRulesets) {
@@ -143,24 +132,15 @@ class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
                                 {rulesetOptions}
                             </div>
                         </div>
-                        <div className={"optionGroup"}>
-                            <div className={"optionGroupTitleContainer"}>
-                                <span className={"optionGroupTitle"}>
-                                    {Locale.setupScreen.selectLanguage}
-                                </span>
-                            </div>
-                            <div className={"languageOptions optionList"}>
-                                {langOptions}
-                            </div>
-                        </div>
                         <div className={"playButtonContainer"}>
-                            <button
-                                className={"playButton"}
+                            <Button
+                                size={"huge"}
+                                color={"blue"}
                                 onClick={this.submitSettings}
                                 disabled={this.state.enteredPlayerIds.length < 1}
                             >
                                 {Locale.setupScreen.startGame}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -169,24 +149,6 @@ class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
     }
 }
 GameSetup.contextType = LocaleContext;
-
-interface GameSetupProps {
-    onSetupComplete: (settings: GameSettings) => void;
-    settings: GameSettings;
-}
-
-interface GameSetupState {
-    selectedLang: SupportedLang;
-    selectedRuleset: string;
-    enteredPlayerIds: string[];
-    editingPlayerName: boolean;
-}
-
-export interface GameSettings {
-    ruleset: string;
-    playerIds: string[];
-    lang: SupportedLang;
-}
 
 const AddPlayerField: React.FunctionComponent<AddPlayerFieldProps> = ({playersListEmpty, submitNewPlayer, userEditing}) => {
     const Locale = React.useContext(LocaleContext).strings;

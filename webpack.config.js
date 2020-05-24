@@ -3,7 +3,7 @@ const webpack = require("webpack");
 
 module.exports = {
   entry: "./src/index.tsx",
-  mode: "development",
+  mode: "production",
   module: {
     rules: [
       {
@@ -38,13 +38,13 @@ module.exports = {
   resolve: { extensions: [".tsx", ".ts", ".js", "*"] },
   output: {
     path: path.resolve(__dirname, "dist/"),
-    publicPath: "/kadi/game/static/",
+    publicPath: "/kadi/static/game/",
     filename: "bundle.js"
   },
   devServer: {
     contentBase: path.join(__dirname, "public/"),
     port: 3000,
-    publicPath: "http://localhost:3000/dist/",
+    publicPath: "http://localhost:3000/",
     hotOnly: true
   },
   plugins: [new webpack.HotModuleReplacementPlugin()]

@@ -1,5 +1,5 @@
 import React, {ReactNode} from "react";
-import {LocaleContext} from "../static/strings";
+import LocaleContext from "../LocaleContext";
 import KadiCell from "./KadiCell";
 import {FieldType} from "../static/enums";
 import {Icon} from "semantic-ui-react";
