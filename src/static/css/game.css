@@ -377,15 +377,24 @@ div.globalTotalField {
 .playerOption {
     cursor: default;
     text-align: left;
+    display: flex;
 }
 
-.playerOption .trashButton {
+span.newPlayerText {
+    color: #ebb600;
+    float: right;
+    font-style: italic;
+    padding-right: 15px;
+}
+
+.playerOption .playerText {
+    flex-grow: 1;
+}
+
+.trashButton {
     cursor: pointer;
     height: 20px;
     width: 20px;
-    right: 10px;
-    top: 10px;
-    position: absolute;
     background-size: contain;
     background-image: url(../images/trash.png);
     background-repeat: no-repeat;

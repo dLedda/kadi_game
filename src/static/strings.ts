@@ -46,13 +46,11 @@ export const IntlStrings = {
             undoButton: "Undo",
             redoButton: "Redo",
             returnToSetupButton: "Back to setup",
-            saveGameButton: "Save game",
+            saveGameButton: {
+                saveGame: "Save game",
+                gameSaved: "Success!",
+            },
             savingGame: "Saving...",
-        },
-        languageNames: {
-            en: "English",
-            de: "German",
-            it: "Italian"
         },
         setupScreen: {
             selectLanguage: "Change language:",
@@ -61,6 +59,7 @@ export const IntlStrings = {
             noPlayersEntered: "No players! Click here to add one...",
             clickToAddPlayer: "Click here to add a player...",
             players: "Players:",
+            playerNew: "new!",
         },
     },
     de: {
@@ -81,8 +80,11 @@ export const IntlStrings = {
             undoButton: "Rückgängig",
             redoButton: "Wiederholen",
             returnToSetupButton: "Zurück zu Einstellungen",
-            saveGameButton: "Spiel speichern",
-            savingGame: "Wird gespeichert...",
+            saveGameButton: {
+                saveGame: "Spiel speichern",
+                gameSaved: "Gespeichert!",
+                savingGame: "Wird gespeichert...",
+            },
         },
         setupScreen: {
             selectLanguage: "Sprache ändern:",
@@ -91,6 +93,7 @@ export const IntlStrings = {
             noPlayersEntered: "Leer! Hier tippen und hinzufügen...",
             clickToAddPlayer: "Zum Hinzufügen hier tippen...",
             players: "Mitspieler:",
+            playerNew: "neu!",
         },
     },
     it: {
@@ -111,8 +114,11 @@ export const IntlStrings = {
             undoButton: "Annullo",
             redoButton: "Ripristino",
             returnToSetupButton: "Torna a impostazioni",
-            saveGameButton: "Salva gioco",
-            savingGame: "Salva...",
+            saveGameButton: {
+                saveGame: "Salva gioco",
+                gameSaved: "Salvato!",
+                savingGame: "Salva...",
+            },
         },
         setupScreen: {
             selectLanguage: "Cambia lingua:",
@@ -121,6 +127,7 @@ export const IntlStrings = {
             noPlayersEntered: "Nessuno! Inserire un nome qui...",
             clickToAddPlayer: "Clicca per inserire un altro nome...",
             players: "Giocatori:",
+            playerNew: "nuovo!",
         },
     },
 } as const;

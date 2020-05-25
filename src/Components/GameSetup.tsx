@@ -1,31 +1,30 @@
 import React, {ChangeEvent, FocusEvent, KeyboardEvent, ReactNode} from "react";
 import {getSchemaListings, SchemaListing} from "../static/rulesets";
-import {LanguageNames} from "../static/strings";
 import LocaleContext from "../LocaleContext";
-import {SupportedLang} from "../static/enums";
 import {Button} from "semantic-ui-react";
+import {Player} from "./Game";
 
 interface GameSetupProps {
     onSetupComplete: (settings: GameSettings) => void;
     settings: GameSettings;
+    availablePlayers: Player[];
 }
 
 interface GameSetupState {
     selectedRuleset: string;
-    enteredPlayerIds: string[];
+    enteredPlayers: Player[];
     editingPlayerName: boolean;
 }
 
 export interface GameSettings {
     ruleset: string;
-    playerIds: string[];
+    players: Player[];
 }
 
 class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
     private readonly availableRulesets: SchemaListing[];
     private changeLang: (lang: string) => void;
     state: GameSetupState;
-
     constructor(props: GameSetupProps) {
         super(props);
 
@@ -33,7 +32,7 @@ class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
         this.changeLang = () => {};
         this.state = {
             selectedRuleset: this.props.settings.ruleset,
-            enteredPlayerIds: this.props.settings.playerIds,
+            enteredPlayers: this.props.settings.players,
             editingPlayerName: false,
         };
     }
@@ -43,23 +42,38 @@ class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
     };
 
     removePlayer: (index: number) => void = (index) => {
-        const newPlayers = this.state.enteredPlayerIds.slice();
+        const newPlayers = this.state.enteredPlayers.slice();
         newPlayers.splice(index, 1);
-        this.setState({enteredPlayerIds: newPlayers});
+        this.setState({enteredPlayers: newPlayers});
     };
 
     addPlayer: (playerSubmission: string, keepEditing: boolean) => void = (playerSubmission, keepEditing) => {
-        const newPlayers = this.state.enteredPlayerIds.slice();
-        if (!newPlayers.find(enteredPlayer => enteredPlayer == playerSubmission)) {
-            newPlayers.push(playerSubmission);
+        const newPlayers = this.state.enteredPlayers.slice();
+        if (!this.alreadyPlaying(playerSubmission)) {
+            newPlayers.push({
+                id: this.playerNameToId(playerSubmission) ?? playerSubmission,
+                nick: playerSubmission
+            });
         }
-        this.setState({enteredPlayerIds: newPlayers, editingPlayerName: keepEditing});
+        this.setState({enteredPlayers: newPlayers, editingPlayerName: keepEditing});
     };
+
+    alreadyPlaying(playerName: string): boolean {
+        return !!this.state.enteredPlayers.find(player => player.nick === playerName);
+    }
+
+    playerNameToId(playerName: string): string | undefined {
+        return this.props.availablePlayers.find(player => player.nick === playerName)?.id;
+    }
+
+    playerIsNew(player: Player) {
+        return player.id === player.nick;
+    }
 
     submitSettings: () => void = () => {
         this.props.onSetupComplete({
             ruleset: this.state.selectedRuleset,
-            playerIds: this.state.enteredPlayerIds,
+            players: this.state.enteredPlayers,
         });
     };
 
@@ -85,19 +99,14 @@ class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
         }
 
         const playerListing: ReactNode[] = [];
-        for (let i = 0; i < this.state.enteredPlayerIds.length; i++) {
-            const playerName = this.state.enteredPlayerIds[i];
+        for (let i = 0; i < this.state.enteredPlayers.length; i++) {
             playerListing.push((
-                <div
-                    key={playerName + "_list"}
-                    className={"option playerOption"}
-                >
-                    {playerName}
-                    <span
-                        className={"trashButton"}
-                        onClick={() => this.removePlayer(i)}
-                    />
-                </div>
+                <ActivePlayerListItem
+                    key={i}
+                    playerIsNew={this.playerIsNew(this.state.enteredPlayers[i])}
+                    removePlayer={() => this.removePlayer(i)}
+                    playerName={this.state.enteredPlayers[i].nick}
+                />
             ));
         }
         playerListing.push((
@@ -105,6 +114,7 @@ class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
                 playersListEmpty={playerListing.length === 0}
                 submitNewPlayer={this.addPlayer}
                 userEditing={this.state.editingPlayerName}
+                availablePlayers={this.props.availablePlayers}
             />
         ));
 
@@ -137,7 +147,7 @@ class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
                                 size={"huge"}
                                 color={"blue"}
                                 onClick={this.submitSettings}
-                                disabled={this.state.enteredPlayerIds.length < 1}
+                                disabled={this.state.enteredPlayers.length < 1}
                             >
                                 {Locale.setupScreen.startGame}
                             </Button>
@@ -150,7 +160,15 @@ class GameSetup extends React.Component<GameSetupProps, GameSetupState> {
 }
 GameSetup.contextType = LocaleContext;
 
-const AddPlayerField: React.FunctionComponent<AddPlayerFieldProps> = ({playersListEmpty, submitNewPlayer, userEditing}) => {
+interface AddPlayerFieldProps {
+    playersListEmpty: boolean;
+    submitNewPlayer: (name: string, keepEditing: boolean) => void;
+    userEditing: boolean;
+    availablePlayers: Player[];
+}
+
+const AddPlayerField: React.FunctionComponent<AddPlayerFieldProps> = (props) => {
+    const {playersListEmpty, submitNewPlayer, userEditing, availablePlayers} = props;
     const Locale = React.useContext(LocaleContext).strings;
 
     const [beingEdited, updateBeingEdited] = React.useState(false);
@@ -205,10 +223,35 @@ const AddPlayerField: React.FunctionComponent<AddPlayerFieldProps> = ({playersLi
     );
 };
 
-interface AddPlayerFieldProps {
-    playersListEmpty: boolean;
-    submitNewPlayer: (name: string, keepEditing: boolean) => void;
-    userEditing: boolean;
+interface ActivePlayerListItemProps {
+    removePlayer: () => any;
+    playerName: string;
+    playerIsNew: boolean;
 }
+
+const ActivePlayerListItem: React.FunctionComponent<ActivePlayerListItemProps> = (props) => {
+    const {removePlayer, playerName, playerIsNew} = props;
+    const Locale = React.useContext(LocaleContext).strings;
+    return (
+        <>
+            <div
+                className={"option playerOption"}
+            >
+                <div className={"playerText"}>
+                    {playerName}
+                    {playerIsNew &&
+                        <span className={"newPlayerText"}>
+                            {Locale.setupScreen.playerNew}
+                        </span>
+                    }
+                </div>
+                <div
+                    className={"trashButton"}
+                    onClick={removePlayer}
+                />
+            </div>
+        </>
+    );
+};
 
 export default GameSetup;

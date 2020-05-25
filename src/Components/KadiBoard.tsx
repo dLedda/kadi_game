@@ -1,7 +1,6 @@
 import React, {ReactElement, ReactNode, useContext} from "react";
 import PlayerScoreCard, {CellLocation, PlayerScoreCardJSONRepresentation} from "../Classes/PlayerScoreCard";
-import {BlockDef, GameSchema, getGameSchemaById} from "../static/rulesets";
-import {formatUnicorn} from "../static/strings";
+import {GameSchema, getGameSchemaById} from "../static/rulesets";
 import LocaleContext from "../LocaleContext";
 import {CellFlag} from "../static/enums";
 import {ScoreCellValue} from "../Classes/ScoreCell";
@@ -14,6 +13,8 @@ import logo from "../static/images/kadi.png";
 import KadiGrandTotalRow from "./KadiGrandTotalRow";
 import KadiBlockRenderer from "./KadiBlockRenderer";
 import {KadiCellDisplayValue} from "./KadiCell";
+import {Player} from "./Game";
+import {SERVER_BASE_NAME} from "../index";
 
 
 export interface CellScores {
@@ -40,9 +41,11 @@ export interface KadiBoardProps {
 
 interface KadiBoardState {
     scoreSheet: ScoreSheet;
-    playerIds: string[];
+    players: Player[];
     showResults: boolean;
     savingGame: boolean;
+    locked: boolean;
+    saved: boolean;
 }
 
 interface ScoreSheet {
@@ -60,33 +63,37 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
         this.gameSchema = getGameSchemaById(this.props.settings.ruleset);
 
         this.state = {
-            scoreSheet: this.generateNewScoreSheet(this.props.settings.playerIds),
-            playerIds: this.props.settings.playerIds,
+            scoreSheet: this.generateNewScoreSheet(this.props.settings.players),
+            players: this.props.settings.players,
             showResults: true,
             savingGame: false,
+            locked: false,
+            saved: false,
         };
 
         this.caretaker = new CaretakerSet(
             Settings.maxHistoryLength,
-            ...this.state.playerIds.map(
-            pid => this.state.scoreSheet[pid]
+            ...this.state.players.map(
+            player => this.state.scoreSheet[player.id]
             )
         );
     }
 
-    private generateNewScoreSheet(playerIds: string[]): ScoreSheet {
+    private generateNewScoreSheet(players: Player[]): ScoreSheet {
         const scoreSheet: ScoreSheet = {};
-        for (const playerId of playerIds) {
-            scoreSheet[playerId] = new PlayerScoreCard(playerId, this.gameSchema);
+        for (const player of players) {
+            scoreSheet[player.id] = new PlayerScoreCard(player.id, this.gameSchema);
         }
         return scoreSheet;
     }
 
     private onCellEdit = (response: CellEventResponse): void => {
-        const newScoreSheet = this.state.scoreSheet;
-        KadiBoard.updateScoreSheetFromCellResponse(newScoreSheet, response);
-        this.setState({ scoreSheet: newScoreSheet });
-        this.caretaker.save();
+        if (!this.state.locked) {
+            const newScoreSheet = this.state.scoreSheet;
+            KadiBoard.updateScoreSheetFromCellResponse(newScoreSheet, response);
+            this.setState({ scoreSheet: newScoreSheet });
+            this.caretaker.save();
+        }
     };
 
     private static updateScoreSheetFromCellResponse(scoreSheet: ScoreSheet, response: CellEventResponse): void {
@@ -137,12 +144,16 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
             JSONScoreCards.push(this.state.scoreSheet[playerId].getJSONRepresentation());
         }
         return JSON.stringify({
-            gameType: this.gameSchema.id,
+            //rulesetUsed: this.gameSchema.id,
+            players: this.state.players,
             results: JSONScoreCards
         });
     }
 
     private canSave(): boolean {
+        if (this.state.saved) {
+            return false;
+        }
         for (const playerId in this.state.scoreSheet) {
             if (!this.state.scoreSheet[playerId].filledOut()) {
                 return false;
@@ -152,18 +163,19 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
     }
 
     private saveGame: () => void = async () => {
-        this.setState({savingGame: true});
-        axios.post(Settings.rootUrl + "/api/savegame",
-            this.getJSONRepresentationForBoard(),
-            {headers: {"Content-Type": "application/json"}}
-            )
-            .then(response => this.onGameSave(response.data))
-            .catch(error => this.onSaveError(error))
-            .finally(() => this.setState({ savingGame: false }));
+        this.setState({savingGame: true}, () => {
+            axios.post(SERVER_BASE_NAME + "/api/games",
+                this.getJSONRepresentationForBoard(),
+                {headers: {"Content-Type": "application/json"}}
+                )
+                .then(response => this.onGameSave(response.data))
+                .catch(error => this.onSaveError(error))
+                .finally(() => this.setState({ savingGame: false }));
+        });
     };
 
     private onGameSave = (serverResponse: string) => {
-        console.log("Response:", serverResponse);
+        this.setState({locked: true, saved: true});
     };
 
     private onSaveError = (error: any) => {
@@ -179,13 +191,13 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
             for (const cell of block.cells) {
                 scores[cell.id] = {};
             }
-            this.state.playerIds.forEach(pid => {
-                scores.totals[pid] = this.getBlockTotalByPlayerId(block.id, pid);
-                scores.bonuses[pid] = this.playerHasBonusForBlock(pid, block.id);
-                scores.subtotals[pid] = this.getBlockSubtotalByPlayerId(block.id, pid);
+            this.state.players.forEach(player => {
+                scores.totals[player.id] = this.getBlockTotalByPlayerId(block.id, player.id);
+                scores.bonuses[player.id] = this.playerHasBonusForBlock(player.id, block.id);
+                scores.subtotals[player.id] = this.getBlockSubtotalByPlayerId(block.id, player.id);
                 for (const cell of block.cells) {
-                    scores[cell.id][pid] = this.getCellDisplayValueByPlayerIdAndLocation(
-                        pid, { blockId: block.id, cellId: cell.id });
+                    scores[cell.id][player.id] = this.getCellDisplayValueByPlayerIdAndLocation(
+                        player.id, { blockId: block.id, cellId: cell.id });
                 }
             });
             rows.push(
@@ -200,8 +212,8 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
         }
 
         const grandTotals: CellScores = {};
-        this.state.playerIds.forEach(pid =>
-            grandTotals[pid] = this.getTotalForPlayer(pid)
+        this.state.players.forEach(player =>
+            grandTotals[player.id] = this.getTotalForPlayer(player.id)
         );
         rows.push(
             <KadiGrandTotalRow
@@ -217,7 +229,7 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
                 <table className="kadiTable">
                     <thead>
                         <tr>
-                            <th colSpan={this.state.playerIds.length + 1}>
+                            <th colSpan={this.state.players.length + 1}>
                                 <Header inverted={true} >
                                     <Image spaced={true} size={"small"} src={logo} />
                                     <Header.Content>
@@ -228,7 +240,7 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
                         </tr>
                     </thead>
                     <tbody>
-                        <ColumnHeadersRow playerIds={this.state.playerIds} />
+                        <ColumnHeadersRow playerNames={this.state.players.map(player => player.nick)} />
                         {rows}
                     </tbody>
                 </table>
@@ -272,7 +284,9 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
                             loading={this.state.savingGame}
                         >
                             <Icon name={"save"} />
-                            {Locale.buttons.saveGameButton}
+                            {this.state.saved ?
+                                Locale.buttons.saveGameButton.gameSaved :
+                                Locale.buttons.saveGameButton.saveGame}
                         </Button>
                     </div>
                 </Container>
@@ -284,10 +298,10 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
 KadiBoard.contextType = LocaleContext;
 
 interface ColumnHeadersRowProps {
-    playerIds: string[];
+    playerNames: string[];
 }
 
-const ColumnHeadersRow: React.FunctionComponent<ColumnHeadersRowProps> = ({ playerIds }) => {
+const ColumnHeadersRow: React.FunctionComponent<ColumnHeadersRowProps> = ({ playerNames }) => {
     const Locale = useContext(LocaleContext).strings;
 
     const columnHeaders: ReactNode[] = [(
@@ -295,7 +309,7 @@ const ColumnHeadersRow: React.FunctionComponent<ColumnHeadersRowProps> = ({ play
             {Locale.headers.rowLabels}
         </td>
     )];
-    for (const playerId of playerIds) {
+    for (const playerId of playerNames) {
         columnHeaders.push(
             <td className="playerNameCell" key={"header" + playerId}>
                 {playerId}
