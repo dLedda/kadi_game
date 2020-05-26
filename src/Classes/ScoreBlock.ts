@@ -7,12 +7,12 @@ import ScoreCell, {
 import {CellDef, BlockDef, BonusBlockDef, NoBonusBlockDef } from "../static/rulesets";
 import {CellFlag} from "../static/enums";
 
-export const createBlockFromDef = (blockDef: BlockDef) : ScoreBlock => {
+export const createBlockFromDef = (blockId: string, blockDef: BlockDef) : ScoreBlock => {
     if (blockDef.hasBonus) {
-        return new ScoreBlockWithBonus(blockDef);
+        return new ScoreBlockWithBonus(blockId, blockDef);
     }
     else {
-        return new ScoreBlockNoBonus(blockDef);
+        return new ScoreBlockNoBonus(blockId, blockDef);
     }
 };
 
@@ -30,15 +30,15 @@ abstract class ScoreBlock {
     protected cells: ScoreCell[];
     protected id: string;
 
-    protected constructor(blockDef: BlockDef) {
+    protected constructor(blockId: string, blockDef: BlockDef) {
         this.cells = ScoreBlock.generateCells(blockDef.cells);
-        this.id = blockDef.id;
+        this.id = blockId;
     }
 
-    private static generateCells(cellDefs: CellDef[]): ScoreCell[] {
+    private static generateCells(cellDefs: Record<string, CellDef>): ScoreCell[] {
         const cells = [];
-        for (const cellDef of cellDefs) {
-            cells.push(createCellFromDef(cellDef));
+        for (const cellId in cellDefs) {
+            cells.push(createCellFromDef(cellId, cellDefs[cellId]));
         }
         return cells;
     }
@@ -120,8 +120,8 @@ class ScoreBlockWithBonus extends ScoreBlock {
     protected readonly bonus: number;
     protected readonly bonusFor: number;
 
-    constructor(blockDef: BonusBlockDef) {
-        super(blockDef);
+    constructor(blockId: string, blockDef: BonusBlockDef) {
+        super(blockId, blockDef);
         this.bonus = blockDef.bonusScore;
         this.bonusFor = blockDef.bonusFor;
     }
@@ -137,8 +137,8 @@ class ScoreBlockWithBonus extends ScoreBlock {
 }
 
 class ScoreBlockNoBonus extends ScoreBlock {
-    constructor(blockDef: NoBonusBlockDef) {
-        super(blockDef);
+    constructor(blockId: string, blockDef: NoBonusBlockDef) {
+        super(blockId, blockDef);
     }
 
     getTotal(): number {

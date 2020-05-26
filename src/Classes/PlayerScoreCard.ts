@@ -15,10 +15,10 @@ class PlayerScoreCard implements Originator {
         this.blocks = PlayerScoreCard.generateBlocks(gameSchema.blocks);
     }
 
-    private static generateBlocks(blockDefs: BlockDef[]): ScoreBlock[] {
+    private static generateBlocks(blockDefs: Record<string, BlockDef>): ScoreBlock[] {
         const blocks = [];
-        for (const blockDef of blockDefs) {
-            blocks.push(createBlockFromDef(blockDef));
+        for (const blockId in blockDefs) {
+            blocks.push(createBlockFromDef(blockId, blockDefs[blockId]));
         }
         return blocks;
     }

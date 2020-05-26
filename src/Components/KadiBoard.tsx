@@ -144,7 +144,7 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
             JSONScoreCards.push(this.state.scoreSheet[playerId].getJSONRepresentation());
         }
         return JSON.stringify({
-            //rulesetUsed: this.gameSchema.id,
+            ruleset: this.gameSchema.id,
             players: this.state.players,
             results: JSONScoreCards
         });
@@ -186,24 +186,26 @@ class KadiBoard extends React.Component<KadiBoardProps, KadiBoardState> {
         const Locale = this.context.strings;
         const rows: ReactElement[] = [];
 
-        for (const block of this.gameSchema.blocks) {
+        for (const block in this.gameSchema.blocks) {
+            const blockSchema = this.gameSchema.blocks[block];
             const scores: BlockScores = {subtotals: {}, bonuses: {}, totals: {}};
-            for (const cell of block.cells) {
-                scores[cell.id] = {};
+            for (const cell in blockSchema.cells) {
+                scores[cell] = {};
             }
             this.state.players.forEach(player => {
-                scores.totals[player.id] = this.getBlockTotalByPlayerId(block.id, player.id);
-                scores.bonuses[player.id] = this.playerHasBonusForBlock(player.id, block.id);
-                scores.subtotals[player.id] = this.getBlockSubtotalByPlayerId(block.id, player.id);
-                for (const cell of block.cells) {
-                    scores[cell.id][player.id] = this.getCellDisplayValueByPlayerIdAndLocation(
-                        player.id, { blockId: block.id, cellId: cell.id });
+                scores.totals[player.id] = this.getBlockTotalByPlayerId(block, player.id);
+                scores.bonuses[player.id] = this.playerHasBonusForBlock(player.id, block);
+                scores.subtotals[player.id] = this.getBlockSubtotalByPlayerId(block, player.id);
+                for (const cell in blockSchema.cells) {
+                    scores[cell][player.id] = this.getCellDisplayValueByPlayerIdAndLocation(
+                        player.id, { blockId: block, cellId: cell});
                 }
             });
             rows.push(
                 <KadiBlockRenderer
-                    key={"block" + block.id}
-                    blockSchema={block}
+                    key={"block" + block}
+                    blockId={block}
+                    blockSchema={blockSchema}
                     showResults={this.state.showResults}
                     onCellEdit={this.onCellEdit}
                     scores={scores}

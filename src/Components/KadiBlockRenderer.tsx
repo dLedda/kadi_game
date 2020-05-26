@@ -12,27 +12,30 @@ import KadiBlockBonusRow from "./KadiBlockBonusRow";
 import LocaleContext from "../LocaleContext";
 
 interface BlockRendererProps {
+    blockId: string;
     blockSchema: BlockDef;
     showResults: boolean;
     onCellEdit(res: CellEventResponse): void;
     scores: BlockScores;
 }
 
-const KadiBlockRenderer: React.FunctionComponent<BlockRendererProps> = ({ blockSchema , showResults, scores, onCellEdit}) => {
+const KadiBlockRenderer: React.FunctionComponent<BlockRendererProps> = (props) => {
+    const { blockSchema, showResults, scores, onCellEdit, blockId} = props;
     const rowsInBlock: ReactElement[] = [];
     const Locale = React.useContext(LocaleContext).strings;
 
-    for (const cell of blockSchema.cells) {
+    for (const cell in blockSchema.cells) {
+        const cellSchema = blockSchema.cells[cell];
         rowsInBlock.push((
             <GenericKadiRowContainer
-                key={"rowCont" + cell.id + blockSchema.id}
-                label={cell.label}
-                cellCssClassName={cell.fieldType}
+                key={"rowCont" + cell + blockId}
+                label={cellSchema.label}
+                cellCssClassName={cellSchema.fieldType}
             >
                 <KadiEditableRowCells
-                    location={{blockId: blockSchema.id, cellId: cell.id}}
-                    fieldType={cell.fieldType}
-                    scores={scores[cell.id]}
+                    location={{blockId, cellId: cell}}
+                    fieldType={cellSchema.fieldType}
+                    scores={scores[cell]}
                     onCellEdit={onCellEdit}
                 />
             </GenericKadiRowContainer>
@@ -41,24 +44,24 @@ const KadiBlockRenderer: React.FunctionComponent<BlockRendererProps> = ({ blockS
     if (blockSchema.hasBonus) {
         rowsInBlock.push(
             <GenericKadiRowContainer
-                key={"rowContSubtotal" + blockSchema.id}
+                key={"rowContSubtotal" + blockId}
                 label={Locale.rowLabels.subtotal}
                 cellCssClassName={FieldType.subtotal + (showResults ? "" : " hideResults")}
             >
                 <KadiBlockSubtotalRow
-                    blockId={blockSchema.id}
+                    blockId={blockId}
                     scores={scores.subtotals}
                 />
             </GenericKadiRowContainer>
         );
         rowsInBlock.push(
             <GenericKadiRowContainer
-                key={"rowContBonus" + blockSchema.id}
+                key={"rowContBonus" + blockId}
                 label={Locale.rowLabels.bonus}
                 cellCssClassName={FieldType.bonus + (showResults ? "" : " hideResults")}
             >
                 <KadiBlockBonusRow
-                    blockId={blockSchema.id}
+                    blockId={blockId}
                     bonusScore={blockSchema.bonusScore}
                     scores={scores.bonuses}
                 />
@@ -67,12 +70,12 @@ const KadiBlockRenderer: React.FunctionComponent<BlockRendererProps> = ({ blockS
     }
     rowsInBlock.push(
         <GenericKadiRowContainer
-            key={"rowContTotal" + blockSchema.id}
+            key={"rowContTotal" + blockId}
             label={formatUnicorn(Locale.rowLabels.blockTotal, blockSchema.label)}
             cellCssClassName={FieldType.total + (showResults ? "" : " hideResults")}
         >
             <KadiBlockTotalRow
-                blockId={blockSchema.id}
+                blockId={blockId}
                 scores={scores.totals}
             />
         </GenericKadiRowContainer>

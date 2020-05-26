@@ -1,4 +1,4 @@
 {
-  "ruleset": "default_en",
+  "ruleset": "DEFAULT_RULESET",
   "maxHistoryLength": 256
 }

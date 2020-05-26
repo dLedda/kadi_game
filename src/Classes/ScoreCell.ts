@@ -1,16 +1,16 @@
 import {CellFlag, FieldType} from "../static/enums";
 import {BoolCellDef, CellDef, MultiplierCellDef, NumberCellDef, YahtzeeCellDef} from "../static/rulesets"
 
-export const createCellFromDef = (cellDef: CellDef) : ScoreCell => {
+export const createCellFromDef = (cellId: string, cellDef: CellDef) : ScoreCell => {
     switch (cellDef.fieldType) {
         case FieldType.number:
-            return new NumberScoreCell(cellDef);
+            return new NumberScoreCell(cellId, cellDef);
         case FieldType.bool:
-            return new BoolScoreCell(cellDef);
+            return new BoolScoreCell(cellId, cellDef);
         case FieldType.multiplier:
-            return new MultiplierScoreCell(cellDef);
+            return new MultiplierScoreCell(cellId, cellDef);
         case FieldType.yahtzee:
-            return new YahtzeeScoreCell(cellDef);
+            return new YahtzeeScoreCell(cellId, cellDef);
     }
 };
 
@@ -34,8 +34,8 @@ abstract class ScoreCell {
     protected struck: boolean;
     protected value: number | boolean;
 
-    protected constructor(cellDef: CellDef) {
-        this.id = cellDef.id;
+    protected constructor(cellId: string, cellDef: CellDef) {
+        this.id = cellId;
         this.struck = false;
         this.value = 0;
     }
@@ -89,8 +89,8 @@ abstract class IterableScoreCell extends ScoreCell {
     protected iteratedSequence: IterableSequenceValues[];
     protected currentIteratorIndex: number;
 
-    protected constructor(cellDef: CellDef) {
-        super(cellDef);
+    protected constructor(cellId: string, cellDef: CellDef) {
+        super(cellId, cellDef);
         this.iteratedSequence = [];
         this.currentIteratorIndex = 0;
     }
@@ -156,8 +156,8 @@ abstract class IterableScoreCell extends ScoreCell {
 class NumberScoreCell extends ScoreCell {
     protected static readonly fieldType = FieldType.number;
 
-    constructor(cellDef: NumberCellDef) {
-        super(cellDef);
+    constructor(cellId: string, cellDef: NumberCellDef) {
+        super(cellId, cellDef);
         this.value = 0;
     }
 
@@ -185,8 +185,8 @@ class BoolScoreCell extends IterableScoreCell {
     private readonly score: number;
     protected value: boolean;
 
-    constructor(cellDef: BoolCellDef) {
-        super(cellDef);
+    constructor(cellId: string, cellDef: BoolCellDef) {
+        super(cellId, cellDef);
         this.score = cellDef.score;
         this.value = false;
         this.iteratedSequence = [false, true];
@@ -207,8 +207,8 @@ class YahtzeeScoreCell extends IterableScoreCell {
     private readonly score: number;
     protected value: number;
 
-    constructor(cellDef: YahtzeeCellDef) {
-        super(cellDef);
+    constructor(cellId: string, cellDef: YahtzeeCellDef) {
+        super(cellId, cellDef);
         this.score = cellDef.score;
         this.value = 0;
 
@@ -232,8 +232,8 @@ class MultiplierScoreCell extends IterableScoreCell {
     protected readonly multiplier: number;
     protected value: number;
 
-    constructor(cellDef: MultiplierCellDef) {
-        super(cellDef);
+    constructor(cellId: string, cellDef: MultiplierCellDef) {
+        super(cellId, cellDef);
         this.multiplier = cellDef.multiplier;
         this.value = 0;
 
